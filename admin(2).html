@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة تحكم حساباتي</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&display=swap">
+<style>
+/* Layout: one control sheet — summary chips, filter bar, device ledger */
+:root{--bg:#f3f6f5;--surface:#fff;--surface2:#f7faf9;--ink:#13201b;--muted:#5b6a64;--line:#e0e7e4;--accent:#0c6a53;--accent-ink:#fff;--accent-weak:#e1f0ea;
+  --good:#13753a;--good-weak:#e5f4ea;--warn:#9a5306;--warn-weak:#fcf1e1;--bad:#b32222;--bad-weak:#fcebeb;
+  --f-display:'Readex Pro','IBM Plex Sans Arabic',Tahoma,sans-serif;--f-body:'IBM Plex Sans Arabic',Tahoma,'Segoe UI',sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1412;--surface:#151d1a;--surface2:#1a2420;--ink:#e5ece9;--muted:#93a39c;--line:#26332e;--accent:#41c29b;--accent-ink:#06261d;--accent-weak:#163029;
+  --good:#5dd38a;--good-weak:#14301f;--warn:#f0a743;--warn-weak:#33250f;--bad:#f27b7b;--bad-weak:#3a1717;color-scheme:dark}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;padding:16px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+button,input,select{font:inherit;color:inherit}
+h1,h2{font-family:var(--f-display);margin:0;font-weight:600}h1{font-size:22px}h2{font-size:16px;margin-bottom:10px}
+.sub{color:var(--muted);font-size:13.5px;margin:0}
+.wrap{max-width:1200px;margin:0 auto;display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;gap:10px;align-items:center}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--accent-weak);border:1px solid var(--line);display:grid;place-items:center}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.in{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;min-width:0}
+.in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak)}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.sm{padding:3px 10px;font-size:13px}.btn.dan{color:var(--bad)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:120px;cursor:pointer;text-align:start}
+.chip b{display:block;font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}.chip span{font-size:12.5px;color:var(--muted)}
+.chip.on{border-color:var(--accent);background:var(--accent-weak)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:12.5px;color:var(--muted);font-weight:600;text-align:start;padding:9px 12px;background:var(--surface2);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}tbody tr:last-child td{border-bottom:0}
+.id{font-family:ui-monospace,monospace;letter-spacing:1px;direction:ltr;display:inline-block}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.ok{background:var(--good-weak);color:var(--good)}.wa{background:var(--warn-weak);color:var(--warn)}.ba{background:var(--bad-weak);color:var(--bad)}.nu{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.err{color:var(--bad);font-size:13.5px;min-height:1.2em}
+.modal{position:fixed;inset:0;background:rgba(8,18,14,.5);display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto;z-index:50}
+.sheet{background:var(--surface);border-radius:14px;width:min(560px,100%);padding:20px;margin-top:6vh;display:grid;gap:12px}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;z-index:80;max-width:calc(100% - 32px)}
+.empty{color:var(--muted);padding:20px;text-align:center}
+.foot{text-align:center;font-size:11.5px;color:var(--muted);direction:ltr}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand"><div class="logo" aria-hidden="true"><svg viewBox="0 0 32 32" width="28" height="28"><path d="M9 5h15a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H9z" fill="#fff"/><path d="M6 6.5A1.5 1.5 0 0 1 7.5 5H10v22H7.5A1.5 1.5 0 0 1 6 25.5z" fill="#0c6a53"/><path d="M13 11h9M13 15h9M13 19h6" stroke="#9fc4b7" stroke-width="1.6" stroke-linecap="round"/><path d="M20 5v7l2-1.5 2 1.5V5z" fill="#d9822b"/></svg></div><div><h1>لوحة تحكم حساباتي</h1><p class="sub">تفعيل وإيقاف نسخ البرنامج عند العملاء</p></div></div>
+    <div class="acts" id="topActs" hidden><button class="btn" onclick="loadAll()">تحديث</button><button class="btn" onclick="logout()">خروج</button></div></div>
+
+  <section class="card" id="loginBox">
+    <h2>الدخول</h2>
+    <form class="form" onsubmit="login(event)">
+      <label class="f">Web API Key<input class="in" id="cfgKey" dir="ltr" autocomplete="off" required></label>
+      <label class="f">Project ID<input class="in" id="cfgPid" dir="ltr" autocomplete="off" required></label>
+      <label class="f">إيميل المطور<input class="in" id="em" type="email" dir="ltr" autocomplete="username" required></label>
+      <label class="f">كلمة المرور<input class="in" id="pw" type="password" autocomplete="current-password" required></label>
+      <div style="grid-column:1/-1" class="acts"><button class="btn pri" type="submit">دخول</button><span class="err" id="lerr"></span></div>
+    </form>
+    <p class="sub">البيانات دي بتتحفظ على جهازك بس علشان متكتبهاش كل مرة (ما عدا كلمة المرور).</p>
+  </section>
+
+  <div id="panel" hidden>
+    <div class="chips" id="chips"></div>
+    <section class="card" style="margin-top:16px">
+      <div class="form" style="margin-bottom:12px"><label class="f">بحث<input class="in" id="q" placeholder="رقم الجهاز أو اسم المحل أو التليفون" oninput="draw()"></label></div>
+      <div id="list"></div>
+    </section>
+  </div>
+  <p class="foot">© Hesabaty · Dev. Ahmed Ismail</p>
+</div>
+<div id="modal" class="modal" hidden onclick="if(event.target===this)closeM()"><div class="sheet" id="sheet"></div></div>
+<div id="toast" hidden></div>
+<script>
+const $=s=>document.querySelector(s);
+let CFG={key:'',pid:''},TOK=null,ROWS=[],FILTER='all';
+try{CFG=JSON.parse(localStorage.getItem('hes_admin_cfg')||'{}');$('#cfgKey').value=CFG.key||'';$('#cfgPid').value=CFG.pid||'';$('#em').value=CFG.em||''}catch(e){}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2800)}
+const fsv=v=>v==null?{nullValue:null}:typeof v==='number'?(Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v}):typeof v==='boolean'?{booleanValue:v}:v instanceof Date?{timestampValue:v.toISOString()}:typeof v==='object'?{mapValue:{fields:Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fsv(x)]))}}:{stringValue:String(v)};
+const fsr=f=>f==null?null:'stringValue' in f?f.stringValue:'integerValue' in f?+f.integerValue:'doubleValue' in f?f.doubleValue:'booleanValue' in f?f.booleanValue:'timestampValue' in f?f.timestampValue:'mapValue' in f?Object.fromEntries(Object.entries(f.mapValue.fields||{}).map(([k,x])=>[k,fsr(x)])):null;
+const base=()=>`https://firestore.googleapis.com/v1/projects/${CFG.pid}/databases/(default)/documents/licenses`;
+
+async function login(e){e.preventDefault();$('#lerr').textContent='';
+  CFG={key:$('#cfgKey').value.trim(),pid:$('#cfgPid').value.trim(),em:$('#em').value.trim()};try{localStorage.setItem('hes_admin_cfg',JSON.stringify(CFG))}catch(x){}
+  try{const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(CFG.key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:CFG.em,password:$('#pw').value,returnSecureToken:true})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error&&d.error.message||r.status);
+    TOK={id:d.idToken,refresh:d.refreshToken,exp:Date.now()+(+d.expiresIn-60)*1000};$('#pw').value='';
+    $('#loginBox').hidden=true;$('#panel').hidden=false;$('#topActs').hidden=false;loadAll()}
+  catch(x){$('#lerr').textContent={'INVALID_LOGIN_CREDENTIALS':'الإيميل أو كلمة المرور غلط','EMAIL_NOT_FOUND':'الإيميل ده مش متسجل','INVALID_PASSWORD':'كلمة المرور غلط'}[x.message]||('تعذر الدخول: '+x.message)}}
+function logout(){TOK=null;ROWS=[];$('#loginBox').hidden=false;$('#panel').hidden=true;$('#topActs').hidden=true}
+async function token(){if(TOK&&Date.now()<TOK.exp)return TOK.id;
+  const r=await fetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(CFG.key),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(TOK.refresh)});
+  const d=await r.json();if(!r.ok){logout();throw new Error('انتهت الجلسة، ادخل تاني')}TOK={id:d.id_token,refresh:d.refresh_token,exp:Date.now()+(+d.expires_in-60)*1000};return TOK.id}
+async function api(path,opt={}){const r=await fetch(base()+path,{...opt,headers:{'Content-Type':'application/json',Authorization:'Bearer '+await token(),...(opt.headers||{})}});
+  if(!r.ok){let m=r.status;try{m=(await r.json()).error.message}catch(e){}throw new Error(r.status===403?'مفيش صلاحية — راجع قواعد الأمان والإيميل':m)}return r.status===204?null:r.json()}
+async function loadAll(){$('#list').innerHTML='<p class="empty">جاري التحميل...</p>';try{ROWS=[];let pt='';
+  do{const d=await api('?pageSize=300'+(pt?'&pageToken='+encodeURIComponent(pt):''));(d.documents||[]).forEach(doc=>{const o={id:doc.name.split('/').pop()};for(const k in doc.fields)o[k]=fsr(doc.fields[k]);ROWS.push(o)});pt=d.nextPageToken||''}while(pt);
+  ROWS.sort((a,b)=>String(b.lastSeen||'').localeCompare(String(a.lastSeen||'')));draw()}catch(e){$('#list').innerHTML=`<p class="empty">${esc(e.message)}</p>`}}
+function state(o){const left=o.expires?Math.ceil((new Date(o.expires)-Date.now())/864e5):9999;if(o.status==='blocked')return ['blocked','موقوف','ba',left];if(left<=0)return ['expired','منتهي','ba',left];if(o.status==='trial')return ['trial','تجريبي','wa',left];return ['active','مفعّل','ok',left]}
+function ago(t){if(!t)return '—';const m=(Date.now()-new Date(t))/6e4;return m<60?'من '+Math.max(1,Math.round(m))+' دقيقة':m<1440?'من '+Math.round(m/60)+' ساعة':'من '+Math.round(m/1440)+' يوم'}
+function draw(){const q=$('#q').value.trim().toLowerCase(),cnt={all:ROWS.length,active:0,trial:0,expired:0,blocked:0};ROWS.forEach(o=>cnt[state(o)[0]]++);
+  $('#chips').innerHTML=[['all','كل الأجهزة'],['active','مفعّل'],['trial','تجريبي'],['expired','منتهي'],['blocked','موقوف']].map(([k,l])=>`<button class="chip${FILTER===k?' on':''}" onclick="FILTER='${k}';draw()"><b>${cnt[k]}</b><span>${l}</span></button>`).join('');
+  const L=ROWS.filter(o=>(FILTER==='all'||state(o)[0]===FILTER)&&(!q||[o.id,o.biz,o.phone].some(x=>String(x||'').toLowerCase().includes(q))));
+  $('#list').innerHTML=L.length?`<div class="tw"><table><thead><tr><th>رقم الجهاز</th><th>المحل</th><th>التليفون</th><th>الحالة</th><th>صالح لحد</th><th>آخر ظهور</th><th>فواتير</th><th>نسخة</th><th>رسالة</th><th></th></tr></thead><tbody>${L.map(o=>{const s=state(o);
+   return `<tr><td><span class="id">${esc(o.id)}</span></td><td>${esc(o.biz||'—')}</td><td><bdi>${esc(o.phone||'—')}</bdi></td><td><span class="pill ${s[2]}">${s[1]}</span></td><td>${o.expires?String(o.expires).slice(0,10):'—'}${s[3]<9999&&s[3]>0?` <span class="sub">(${s[3]} يوم)</span>`:''}</td><td>${ago(o.lastSeen)}</td><td>${o.stats&&o.stats.invoices!=null?o.stats.invoices:'—'}</td><td>${esc(o.version||'')}</td><td>${o.msg?'<span class="pill nu">فيه رسالة</span>':''}</td>
+   <td><div class="acts"><button class="btn sm pri" onclick="edit('${o.id}')">إدارة</button>${o.status==='blocked'?`<button class="btn sm" onclick="quick('${o.id}','active')">تشغيل</button>`:`<button class="btn sm dan" onclick="quick('${o.id}','blocked')">إيقاف</button>`}</div></td></tr>`}).join('')}</tbody></table></div>`
+  :`<p class="empty">${ROWS.length?'مفيش أجهزة مطابقة.':'لسه مفيش أجهزة سجلت. أول ما حد يفتح البرنامج وهو متصل بالنت هيظهر هنا.'}</p>`}
+async function patch(id,obj){const mask=Object.keys(obj).map(k=>'updateMask.fieldPaths='+k).join('&');
+  await api('/'+id+'?'+mask,{method:'PATCH',body:JSON.stringify({fields:Object.fromEntries(Object.entries(obj).map(([k,v])=>[k,fsv(v)]))})});
+  const o=ROWS.find(x=>x.id===id);for(const k in obj)o[k]=obj[k] instanceof Date?obj[k].toISOString():obj[k];draw()}
+async function quick(id,status){try{await patch(id,{status});toast(status==='blocked'?'اتوقف البرنامج على الجهاز ده':'اتشغل البرنامج تاني')}catch(e){toast(e.message)}}
+function addDays(d){const o=ROWS.find(x=>x.id===EDIT);const from=o.expires&&new Date(o.expires)>new Date()?new Date(o.expires):new Date();from.setDate(from.getDate()+d);$('#m_exp').value=from.toISOString().slice(0,10);$('#m_st').value='active'}
+let EDIT=null;
+function edit(id){EDIT=id;const o=ROWS.find(x=>x.id===id),s=state(o);
+  $('#sheet').innerHTML=`<h2>إدارة الجهاز <span class="id">${esc(id)}</span></h2><p class="sub">${esc(o.biz||'بدون اسم')} · ${esc(o.phone||'')} · سجّل ${o.created?String(o.created).slice(0,10):'—'} · ${o.stats?`${o.stats.invoices||0} فاتورة، ${o.stats.products||0} صنف، ${o.stats.users||0} مستخدم`:''}</p>
+  <div class="form"><label class="f">الحالة<select class="in" id="m_st"><option value="active"${o.status==='active'?' selected':''}>مفعّل</option><option value="trial"${o.status==='trial'?' selected':''}>تجريبي</option><option value="blocked"${o.status==='blocked'?' selected':''}>موقوف</option></select></label>
+  <label class="f">صالح لحد<input class="in" type="date" id="m_exp" value="${o.expires?String(o.expires).slice(0,10):''}"></label></div>
+  <div class="quick"><span class="sub">تمديد سريع:</span><button class="btn sm" onclick="addDays(30)">شهر</button><button class="btn sm" onclick="addDays(90)">3 شهور</button><button class="btn sm" onclick="addDays(180)">6 شهور</button><button class="btn sm" onclick="addDays(365)">سنة</button><button class="btn sm" onclick="$('#m_exp').value='2099-12-31';$('#m_st').value='active'">مدى الحياة</button></div>
+  <label class="f">رسالة تظهر عند العميل (سيبها فاضية لو مفيش)<input class="in" id="m_msg" value="${esc(o.msg||'')}" placeholder="مثال: اشتراكك هيخلص آخر الشهر، كلمني للتجديد"></label>
+  <div class="acts"><button class="btn pri" onclick="saveEdit()">حفظ</button><button class="btn" onclick="closeM()">إلغاء</button><span style="flex:1"></span><button class="btn dan" id="delb" onclick="delDev()">حذف الجهاز</button></div>`;$('#modal').hidden=false}
+async function saveEdit(){const exp=$('#m_exp').value;const obj={status:$('#m_st').value,msg:$('#m_msg').value.trim()};if(exp)obj.expires=new Date(exp+'T23:59:59');
+  try{await patch(EDIT,obj);closeM();toast('اتحفظ — هيوصل للعميل أول ما البرنامج عنده يتصل بالنت')}catch(e){toast(e.message)}}
+async function delDev(){const b=$('#delb');if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='اضغط تاني للتأكيد';return}
+  try{await api('/'+EDIT,{method:'DELETE'});ROWS=ROWS.filter(x=>x.id!==EDIT);closeM();draw();toast('اتحذف الجهاز — لو فتح البرنامج تاني هيسجل كجهاز جديد تجريبي')}catch(e){toast(e.message)}}
+function closeM(){$('#modal').hidden=true}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+</script>
+</body>
+</html>
